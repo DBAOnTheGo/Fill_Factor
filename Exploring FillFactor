@@ -1,0 +1,26 @@
+IF OBJECT_ID('[dbo].[DBA_Reset_Fragmentation_Levels]', 'U') IS NOT NULL
+  DROP TABLE [master].[dbo].[DBA_Reset_Fragmentation_Levels]
+
+CREATE TABLE [master].[dbo].[DBA_Reset_Fragmentation_Levels](
+ [CurrentTime] [datetime] NOT NULL,
+ [DatabaseName] [varchar](1000) NOT NULL,
+ [SchemaName] [varchar](1000) NOT NULL,
+ [TableName] [varchar](1000) NOT NULL,
+ [IndexName] [varchar](1000) NOT NULL,
+ [fill_factor] [int] NOT NULL,
+ [Identifier] [int] NOT NULL
+) ON [PRIMARY]
+
+exec sp_MSforeachdb @command1 = '
+use [?]
+INSERT into [master].[dbo].[DBA_Reset_Fragmentation_Levels]
+SELECT DISTINCT current_timestamp as CurrentTime, d.name as DatabaseName, 
+s.name as SchemaName, o.name as TableName, i.name as IndexName, fill_factor, i.object_id as Identifier
+FROM sys.dm_db_index_physical_stats (NULL, NULL, NULL, NULL, NULL) p
+inner join sys.databases as d on d.database_id = p.database_id
+inner join sys.objects as o on p.object_id = o.object_id
+inner join sys.schemas as s on o.schema_id = s.schema_id
+inner join sys.indexes as i on p.object_id = i.object_id 
+where i.index_id > 0
+and fill_factor != 100
+and fill_factor != 0'
