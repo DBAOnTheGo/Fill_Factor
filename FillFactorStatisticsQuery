@@ -7,11 +7,21 @@ Desc: Builds out a suggestion based on the max record size divided by the usable
 --Please do not change all your fill factors based on this. This is for exploritory uses only.
 --The script is only built to show what fill factor % would need to be used to allow for an additional single record to be placed in the page.
 */
-
+--built based on maximum
 select DatabaseName, TableName, IndexName, alloc_unit_type_desc, page_count, record_count, max_record_size_in_bytes,
  (8060/max_record_size_in_bytes) as MaxRecordsPerPage, 
  ((max_record_size_in_bytes/80.60)-100)*(-1) as Suggested_Fill_Factor 
- from SAOnly.dbo.billfillfactor
+ from master.dbo.FillFactorStatistics
  where max_record_size_in_bytes > 0
  and ((max_record_size_in_bytes/80.60)-100)*(-1) > 50
+order by databasename desc, page_count desc
+
+
+--built based on average.
+select DatabaseName, TableName, IndexName, alloc_unit_type_desc, page_count, record_count, avg_record_size_in_bytes,
+ (8060/max_record_size_in_bytes) as MaxRecordsPerPage, 
+ ((avg_record_size_in_bytes/80.60)-100)*(-1) as Suggested_Fill_Factor 
+ from master.dbo.FillFactorStatistics
+ where avg_record_size_in_bytes > 0
+ and ((avg_record_size_in_bytes/80.60)-100)*(-1) > 50
 order by databasename desc, page_count desc
