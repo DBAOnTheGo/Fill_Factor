@@ -1,0 +1,32 @@
+USE [master]
+GO
+
+/****** Object:  Table [dbo].[FillFactorStatistics]    Script Date: 11/15/2013 08:47:57 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[FillFactorStatistics](
+	[DatabaseName] [nvarchar](128) NULL,
+	[TableName] [nvarchar](128) NULL,
+	[index_id] [int] NOT NULL,
+	[IndexName] [sysname] NULL,
+	[avg_fragmentation_in_percent] [float] NULL,
+	[alloc_unit_type_desc] [nvarchar](60) NULL,
+	[avg_fragment_size_in_pages] [float] NULL,
+	[page_count] [bigint] NULL,
+	[avg_page_space_used_in_percent] [float] NULL,
+	[record_count] [bigint] NULL,
+	[min_record_size_in_bytes] [int] NULL,
+	[max_record_size_in_bytes] [int] NULL,
+	[avg_record_size_in_bytes] [float] NULL,
+	[compressed_page_count] [bigint] NULL,
+	[fill_factor] [tinyint] NOT NULL,
+	[Identifier] [int] NOT NULL
+) ON [PRIMARY]
+
+GO
+
+
