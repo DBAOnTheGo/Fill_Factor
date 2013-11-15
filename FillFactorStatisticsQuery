@@ -11,6 +11,7 @@ Desc: Builds out a suggestion based on the max record size divided by the usable
 select DatabaseName, TableName, IndexName, alloc_unit_type_desc, page_count, record_count, max_record_size_in_bytes,
  (8060/max_record_size_in_bytes) as MaxRecordsPerPage, 
  ((max_record_size_in_bytes/80.60)-100)*(-1) as Suggested_Fill_Factor 
- from master.dbo.FillFactorStatistics
+ from SAOnly.dbo.billfillfactor
  where max_record_size_in_bytes > 0
-order by databasename desc
+ and ((max_record_size_in_bytes/80.60)-100)*(-1) > 50
+order by databasename desc, page_count desc
