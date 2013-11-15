@@ -1,0 +1,41 @@
+/*
+DATE: 2013-11-15
+Author:     Bill Barnes
+Desc: fills out the master.dbo.FillFactorStatistics table and provides a central point to view 
+a deeper look into your indexes as a whole. Primary purpose is to find out how big your records
+are and how much wasted fill factor you're using.
+
+This processes can run slow. Watch your server and verify you're not blocking anything. This is 
+best to run after hours or during low production times.
+*/
+
+
+--Use this command if you're only interested in a single database.
+/*
+insert into master.dbo.FillFactorStatistics
+SELECT DB_NAME() AS DatabaseName, Object_name(i.object_id) AS TableName, i.index_id, name AS IndexName, avg_fragmentation_in_percent,
+ips.alloc_unit_type_desc,ips.avg_fragment_size_in_pages, ips.page_count, ips.avg_page_space_used_in_percent, ips.record_count,
+ips.min_record_size_in_bytes, ips.max_record_size_in_bytes, ips.avg_record_size_in_bytes, ips.compressed_page_count, fill_factor, i.object_id as Identifier
+
+  FROM sys.dm_db_index_physical_stats (DB_ID(), NULL, NULL, NULL, 'detailed') AS ips
+    INNER JOIN sys.indexes AS i ON ips.object_id = i.object_id AND ips.index_id = i.index_id
+where ips.index_id > 0
+and ips.index_level = 0
+ORDER BY DB_NAME()
+*/
+
+--Use this command if you need the information from all your databases.
+/*
+exec sp_MSforeachdb @command1 = '
+use [?]
+insert into master.dbo.FillFactorStatistics
+SELECT DB_NAME() AS DatabaseName, Object_name(i.object_id) AS TableName, i.index_id, name AS IndexName, avg_fragmentation_in_percent,
+ips.alloc_unit_type_desc,ips.avg_fragment_size_in_pages, ips.page_count, ips.avg_page_space_used_in_percent, ips.record_count,
+ips.min_record_size_in_bytes, ips.max_record_size_in_bytes, ips.avg_record_size_in_bytes, ips.compressed_page_count, fill_factor, i.object_id as Identifier
+
+  FROM sys.dm_db_index_physical_stats (DB_ID(), NULL, NULL, NULL, ''detailed'') AS ips
+    INNER JOIN sys.indexes AS i ON ips.object_id = i.object_id AND ips.index_id = i.index_id
+where ips.index_id > 0
+and ips.index_level = 0
+ORDER BY DB_NAME()'
+*/
